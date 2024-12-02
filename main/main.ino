@@ -4,6 +4,7 @@
 #include <ESPmDNS.h>
 #include <iostream> 
 #include <string> 
+#define pino_solo 4
 
 // Configurações da rede Wi-Fi
 const char* ssid = "A15 de João Pedro";
@@ -34,7 +35,7 @@ String geradorDePerfil(Perfil p){
   String perfilGenerico = R"rawliteral(
     <div>
       <p><strong>Perfil:</strong> )rawliteral" +  nome + R"rawliteral(</p>
-      <p><strong>Umidade Máxima:</strong> )rawliteral" + umiMaxStr + R"rawliteral(</p>
+      <p><strong>Umidade Maxima:</strong> )rawliteral" + umiMaxStr + R"rawliteral(</p>
       <p><strong>Umidade Minima:</strong> )rawliteral" + umiMinStr + R"rawliteral(</p>
     </div>
   )rawliteral";
@@ -54,12 +55,15 @@ void handleRoot() {
           body { font-family: Arial, sans-serif; text-align: center; margin: 50px; }
           h1 { color: #333; }
           p { font-size: 18px; }
-          .led { margin: 20px; }
+          .perfis { display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 4px; padding: 10px}
         </style>
       </head>
     <body>
 
-      <h1>Monitor de Ambiente</h1>)rawliteral";
+      <h1>Monitor de Ambiente</h1>
+      <div class="perfis">
+      )rawliteral";
+      
     
   int arraySize = sizeof(perfis) / sizeof(perfis[0]);
   for( int i=0; i < arraySize; i++){
@@ -67,9 +71,6 @@ void handleRoot() {
   }
 
   html+= R"rawliteral(
-      <div class="led">
-        <a href="/ligar"><button>🔴 Ligar LED</button></a>
-        <a href="/desligar"><button>⚪ Desligar LED</button></a>
       </div>
     </body>
     </html> )rawliteral";
@@ -82,6 +83,13 @@ void handleNotFound() {
   message += "URI: " + server.uri() + "\n";
   server.send(404, "text/plain", message);
 }
+
+
+int getUmidade(){
+  return analogRead(pino_solo);
+}
+
+
 void setup() {
   // Inicializa comunicação serial
   Serial.begin(115200);
@@ -103,11 +111,6 @@ void setup() {
   }
 // Rotas do servidor
   server.on("/", handleRoot);
-  
-//  server.on("/desligar", []() {
- //   desligarLed();
- //   server.send(200, "text/plain", "LED desligado");
- // });
 
   server.onNotFound(handleNotFound);
   // Inicia o servidor web
