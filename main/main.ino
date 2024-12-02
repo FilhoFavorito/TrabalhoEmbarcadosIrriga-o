@@ -4,8 +4,6 @@
 #include <ESPmDNS.h>
 #include <iostream> 
 #include <string> 
-#include <vector> 
-
 
 // Configurações da rede Wi-Fi
 const char* ssid = "A15 de João Pedro";
@@ -21,19 +19,12 @@ class Perfil {
     String nome; 
     int UmiMax; 
     int UmiMin;
-  
-  Perfil(String nome, int UmiMax, int UmiMin){
-    nome = nome; 
-    UmiMax = UmiMax;
-    UmiMin = UmiMin;
-  }
 }; 
 
-Perfil p;
-std::vector<Perfil> v; 
+Perfil alface("alface", 90, 60);
+Perfil morango("morango", 30, 70); 
 
-v.insert( p("alface", 90, 60) );
-v.insert( p("morango", 70, 30) );
+Perfil perfis[] = {alface, morango};
 
 String geradorDePerfil(Perfil p){
   String nome = p.nome;
@@ -70,12 +61,12 @@ void handleRoot() {
 
       <h1>Monitor de Ambiente</h1>)rawliteral";
     
-  for( Perfil p : v) {
-    html+= geradorDePerfil(p);
+  int arraySize = sizeof(perfis) / sizeof(perfis[0]);
+  for( int i=0; i < arraySize; i++){
+    html+= geradorDePerfil(perfis[i]);
   }
-  
 
-  String botoes = R"rawliteral(
+  html+= R"rawliteral(
       <div class="led">
         <a href="/ligar"><button>🔴 Ligar LED</button></a>
         <a href="/desligar"><button>⚪ Desligar LED</button></a>
